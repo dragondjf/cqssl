@@ -3,6 +3,7 @@
 
 import tornado.ioloop
 import tornado.httpclient
+from pyquery import PyQuery as pq
 from .websockerhandler import WebSocketManagerHandler
 
 
@@ -32,6 +33,11 @@ class PeriodicTask(object):
             WebSocketManagerHandler.send_updates({
                 "data": html[start:end]
             })
+
+            print pq(html)("<td class=\"img\">")
+
+            with open("./demo.html", "w") as f:
+                f.write(html)
 
     def start(self):
         self.fetchData()
