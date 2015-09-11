@@ -5,6 +5,7 @@ import tornado.ioloop
 import tornado.httpclient
 from pyquery import PyQuery as pq
 from .websockerhandler import WebSocketManagerHandler
+from .analyze import CodeManager
 
 
 class PeriodicTask(object):
@@ -16,6 +17,8 @@ class PeriodicTask(object):
         self.timer = tornado.ioloop.PeriodicCallback(
             self.fetchData, self.interval)
         self.http_client = tornado.httpclient.AsyncHTTPClient()
+
+        self.codeManager = CodeManager()
 
     def fetchData(self):
         self.http_client.fetch(
@@ -30,14 +33,11 @@ class PeriodicTask(object):
             html = html.replace("images/", "static/images/")
             start = html.find("<body>") + len("<body>")
             end = html.find("</body>")
+            result = self.codeManager.initCodeObjsByHtml(html)
             WebSocketManagerHandler.send_updates({
-                "data": html[start:end]
+                "data": html[start:end],
+                "result": result
             })
-
-            print pq(html)("<td class=\"img\">")
-
-            with open("./demo.html", "w") as f:
-                f.write(html)
 
     def start(self):
         self.fetchData()
