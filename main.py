@@ -13,7 +13,7 @@ import uuid
 from tornado.options import define, options
 from handlers import *
 
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=9999, help="run on the given port", type=int)
 
 
 class DApplication(tornado.web.Application):
