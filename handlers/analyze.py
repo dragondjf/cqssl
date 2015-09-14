@@ -74,12 +74,13 @@ class CodeObj(object):
 
 
 class CodeManager(object):
-    def __init__(self, html=""):
+    def __init__(self):
         super(CodeManager, self).__init__()
         self._codeObjs = []
-        self.initCodeObjsByHtml(html)
+        # self.initCodeObjsByHtml(html)
 
     def initCodeObjsByHtml(self, html):
+        self._codeObjs = []
         d = pq(html)
         for item in d("td.img"):
             _code = []
@@ -111,7 +112,7 @@ class CodeManager(object):
             obj = CodeObj(**_item)
             self._codeObjs.append(obj)
 
-        self.analyzeData()
+        return self.analyzeData()
 
     @property
     def codeObjs(self):
@@ -121,12 +122,22 @@ class CodeManager(object):
         objs = self._codeObjs[:-10]
         sums = [obj.sum for obj in objs]
         paritys = [obj.parity for obj in objs]
-        print getSameItem(sums)
-        print getSameItem(paritys)
+        sumsResult =  getSameItem(sums)
+        paritysResult =  getSameItem(paritys)
 
-html = ""
-with open("demo.html") as f:
-    html = f.read()
-codeManager = CodeManager(html)
-# print codeManager.codeObjs
+        result = {
+            "large": 0,
+            "small": 0,
+            "odd": 0,
+            "even": 0,
+        }
+        if 'small' in sumsResult:
+            result['small'] = len(sumsResult)
+        if 'large' in sumsResult:
+            result['large']  = len(sumsResult)
+        if 'odd' in paritysResult:
+            result['odd']  = len(paritysResult)
+        if 'even' in paritysResult:
+            result['even']  = len(paritysResult)
 
+        return result

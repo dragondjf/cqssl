@@ -15,10 +15,38 @@
       <script src="js/vendor/html5shiv.js"></script>
       <script src="js/vendor/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+        .spanHeader {
+            display:inline-block;
+            margin-right:20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container" style="width:970px; margin: 0 auto">
+        <div class="row">
+            <div class="span4">
+                <div>
+                    <span class="spanHeader">连续出大</span>
+                    <span id="large"></span>
+                </div>
+                <div>
+                    <span class="spanHeader">连续出小</span>
+                    <span id="small"></span>
+                </div>
+                <div>
+                    <span class="spanHeader">连续出双</span>
+                    <span id="even"></span>
+                </div>
+                <div>
+                    <span class="spanHeader">连续出单</span>
+                    <span id="odd"></span>
+                </div>
+            </div>
+            <div class="span8" style="float=left"></div>
+        </div>
     </div>
     <!-- /container -->
     <!-- jQuery (necessary for Flat UI's JavaScript plugins) -->
