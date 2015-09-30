@@ -6,6 +6,7 @@ import tornado.httpclient
 from pyquery import PyQuery as pq
 from .websockerhandler import WebSocketManagerHandler
 from .analyze import CodeManager
+from .yunpian_sms import sendsms
 
 
 class PeriodicTask(object):
@@ -38,6 +39,10 @@ class PeriodicTask(object):
                 "data": html[start:end],
                 "result": result
             })
+
+            k = 6
+            if result['large'] >= k or result['small'] >=k or  result['even'] >=k or  result['odd']>=k:
+                sendsms(result)
 
     def start(self):
         self.fetchData()
