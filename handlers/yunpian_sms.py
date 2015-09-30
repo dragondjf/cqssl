@@ -60,23 +60,20 @@ def tpl_send_sms(apikey, tpl_id, tpl_value, mobile):
 def sendsms(result):
     apikey = "25bd87c30a32e1bec18430f67acd199b "
     mobile = "13986218913"
-    tpl_id = 1002531 #对应的模板内容为：您的验证码是#code#【#company#】
+    tpl_id = 1002491 #对应的模板内容为：您的验证码是#code#【#company#】
 
-    message1 = ""
-    if result['large'] > 0:
-        message1 = "#type1#=大&#count1#=%d" % (result['large']) 
-    if result['small'] > 0:
-        message1 = "#type1#=小&#count1#=%d" % (result['small'])
+
+    message1 = "#type1#=大&#count1#=%d" % (result['large'])
+
+    message2 = "#type2#=小&#count2#=%d" % (result['small'])
     
-    message2= ""
-    if result['odd'] > 0:
-        message2 = "#type2#=单&#count2#=%d" % (result['odd'])
-    if result['even'] > 0:
-        message2 = "#type2#=双&#count2#=%d" % (result['even'])
+    message3 = "#type3#=单&#count3#=%d" % (result['odd'])
 
-    message = "%s&%s" % (message1, message2)
+    message4 = "#type4#=双&#count4#=%d" % (result['even'])
 
-    ret = tpl_send_sms(apikey, tpl_id, message, mobile))
+    message = "%s&%s&%s&%s" % (message1, message2, message3, message4)
+
+    ret = tpl_send_sms(apikey, tpl_id, message, mobile)
     logging.info(ret)
 
 

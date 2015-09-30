@@ -21,6 +21,8 @@ class PeriodicTask(object):
 
         self.codeManager = CodeManager()
 
+        self.result = None
+
     def fetchData(self):
         self.http_client.fetch(
             "http://yhw002.com/app/member/Lottery/list.php?t=1",
@@ -39,10 +41,11 @@ class PeriodicTask(object):
                 "data": html[start:end],
                 "result": result
             })
-
-            k = 6
-            if result['large'] >= k or result['small'] >=k or  result['even'] >=k or  result['odd']>=k:
-                sendsms(result)
+            if self.result != result:
+                k = 10
+                if result['large'] >= k or result['small'] >=k or  result['even'] >=k or result['odd']>=k:
+                    sendsms(result)
+                self.result = result
 
     def start(self):
         self.fetchData()
