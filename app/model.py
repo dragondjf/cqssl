@@ -11,7 +11,7 @@ from peewee import *
 #     CREATE DATABASE `Cqssc` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 #     ''')
 
-db = SqliteDatabase("cqssc.db", threadlocals=True)
+db = SqliteDatabase("app/cqssc.db", threadlocals=True)
 
 
 
@@ -103,6 +103,15 @@ class Lottery(BaseModel):
 
     __key__ = 'lottery_number'
 
+    def toDict(self):
+        keys = ['lottery_day', "lottery_number", "one",
+            "two", "three", "four", "five", "sum"
+        ]
+        ret = {}
+        for key in keys:
+            ret.update({key: getattr(self, key)})
+        return ret
+
     @classmethod
     def readData(cls, filename):
         with open(filename, "r") as f:
@@ -137,7 +146,14 @@ class Lottery(BaseModel):
                     'sum': sum(value)
                 }
                 Lottery.createRecord(**record)
-                print record
+                print(record)
+
+    @classmethod
+    def getRecordByDay(cls, day):
+        rets = []
+        for record in Lottery.select().where(Lottery.lottery_day==day):
+            rets.append(record.toDict())
+        return rets
 
 
 class DBWorker(object):
@@ -146,16 +162,20 @@ class DBWorker(object):
         super(DBWorker, self).__init__()
         tables = [Lottery]
         db.connect()
-        db.drop_tables(tables, safe=True)
-        db.create_tables(tables, safe=True)
-        self.loadData()
+        # db.drop_tables(tables, safe=True)
+        # db.create_tables(tables, safe=True)
+        # self.loadData()
 
     def loadData(self):
-        Lottery.readData("cqssc_data.txt")
+        Lottery.readData("cqssc.txt")
 
     def readData(self):
         for lottery in Lottery.select():
             print lottery.lottery_day, lottery.lottery_number
 
+    def test(self):
+        print(db.get_tables())
+        print(Lottery.getRecordByDay(20141001))
+        
+
 dbWorker = DBWorker()
-dbWorker.readData()
