@@ -35,17 +35,17 @@ from logging import RootLogger
 logging.root.setLevel(logging.DEBUG)
 logging.root.propagate = 0
 #log write in file
-logpath = os.sep.join([os.getcwd(), 'main.log'])
+logpath = os.sep.join([os.getcwd(), 'log', 'main.log'])
 fh = RotatingFileHandler(logpath, maxBytes=10 * 1024 * 1024, backupCount=100)
-fh.setLevel(logging.ERROR)
+fh.setLevel(logging.WARNING)
 #log write in console
 ch = logging.StreamHandler()
-ch.setLevel(logging.ERROR)
+ch.setLevel(logging.WARNING)
 #log formatter
 formatter = logging.Formatter('%(asctime)s %(levelname)8s [%(pathname)s%(lineno)06s] %(message)s')
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 logging.root.addHandler(fh)
-#logging.root.addHandler(ch)
+logging.root.addHandler(ch)
 logger = logging.root
 logger.propagate = 0

@@ -4,6 +4,7 @@
 import os
 import datetime
 from peewee import *
+from log import logger
 
 # db = MySQLDatabase('Cqssc', user="root", passwd="djf", threadlocals=True)
 # db.execute_sql('''
@@ -60,6 +61,14 @@ class BaseModel(Model):
             ret = None
         return ret
 
+    @classmethod
+    def createRecords(cls, records):
+        with db.transaction() as txn:
+            for record in records:
+                try:
+                    ret = cls.create(**record)
+                except IntegrityError:
+                    ret = None
 
     @classmethod
     @db.atomic()
@@ -90,7 +99,6 @@ class BaseModel(Model):
 
 
 class Lottery(BaseModel):
-    lottery_time = DateTimeField(default=datetime.datetime.now)
     lottery_day = IntegerField()
     lottery_number = BigIntegerField()
     one = IntegerField()
@@ -116,43 +124,46 @@ class Lottery(BaseModel):
     def readData(cls, filename):
         with open(filename, "r") as f:
             rawDataLines = f.readlines()
+        logger.warning("start read data")
+        recordDatas = []
         for line in rawDataLines:
             line = repr(line)
             keyStart = line.find("20")
             keyEnd = line.find("\\t")
             key = line[keyStart:keyEnd]
 
-            if int(key[0:4]) >= 2014: 
-                valueStart = keyEnd + 2
-                valueEnd = -5
+            valueStart = keyEnd + 2
+            valueEnd = -5
 
-                rawData_string = line[valueStart:valueEnd].split(",")
+            rawData_string = line[valueStart:valueEnd].split(",")
 
-                value = [int(item) for item in 
-                    line[valueStart:valueEnd].split(",")]
+            value = [int(item) for item in 
+                line[valueStart:valueEnd].split(",")]
 
-                lottery_time = int(key.replace('-', '')[:-3])
-                lottery_day = int(key.replace('-', '')[:-3])
-                lottery_number = int(key.replace('-', ''))
-                
-                record = {
-                    'lottery_day' : lottery_day,
-                    'lottery_number': lottery_number,
-                    'one': value[0],
-                    'two': value[1],
-                    'three': value[2],
-                    'four': value[3],
-                    'five': value[4],
-                    'sum': sum(value)
-                }
-                Lottery.createRecord(**record)
-                print(record)
+            lottery_day = int(key.replace('-', '')[:-3])
+            lottery_number = int(key.replace('-', ''))
+            
+            recordData = {
+                'lottery_day' : lottery_day,
+                'lottery_number': lottery_number,
+                'one': value[0],
+                'two': value[1],
+                'three': value[2],
+                'four': value[3],
+                'five': value[4],
+                'sum': sum(value)
+            }
+            recordDatas.append(recordData)
+        logger.warning("Read data finished")
+        logger.warning("start write to db")
+        Lottery.createRecords(recordDatas)
+        logger.warning("write dat to db finished")
 
     @classmethod
     def getRecordByDay(cls, day):
         rets = []
         for record in Lottery.select().where(Lottery.lottery_day==day):
-            rets.append(record.toDict())
+            rets.append(record)
         return rets
 
 
@@ -160,14 +171,13 @@ class DBWorker(object):
 
     def __init__(self):
         super(DBWorker, self).__init__()
-        tables = [Lottery]
         db.connect()
-        # db.drop_tables(tables, safe=True)
-        # db.create_tables(tables, safe=True)
-        # self.loadData()
 
-    def loadData(self):
-        Lottery.readData("cqssc.txt")
+    def loadData(self, filePath):
+        tables = [Lottery]
+        db.drop_tables(tables, safe=True)
+        db.create_tables(tables, safe=True)
+        Lottery.readData(filePath)
 
     def readData(self):
         for lottery in Lottery.select():
@@ -175,7 +185,8 @@ class DBWorker(object):
 
     def test(self):
         print(db.get_tables())
-        print(Lottery.getRecordByDay(20141001))
-        
+        for r in Lottery.getRecordByDay(20160914):
+            print r.one, r.two, r.three, r.four, r.five
+        # self.readData()
 
 dbWorker = DBWorker()
